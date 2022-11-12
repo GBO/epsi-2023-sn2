@@ -13,7 +13,7 @@ Support de cours C++
 
 # Description
 * [Exercices](./exercices/)
-* [Battle Royale de Bots](./battle_royale/)
+* [Battle Royale de Bots](https://github.com/GBO/epsi-2023-br)
 
 
 # Ressources bibliographiques
