@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 using namespace std;
 
@@ -31,6 +32,11 @@ public:
  * Classe abstraite Magasin : contrat de service pour tous les autres magasins
 */
 class Magasin {
+protected:
+  vector<Article*> stock;
+  virtual void approvisionner() = 0;
+  virtual Article* prendre() = 0;
+
 public:
   // Les méthodes ne sont pas implémentées avec la syntaxe `= 0` pour
   // le rendre abraites
@@ -44,7 +50,30 @@ public:
  * Spécialisation Boulangerie implémentant toutes les méthodes abstraites
 */
 class Boulangerie: public Magasin {
+protected:
+  int count;
+
+  virtual void approvisionner() {
+    cout << "Réappro Boulangerie !" << endl;
+    for (int i = 0; i < 10; i++) {
+      this->count += 1;
+      this->stock.push_back(new Article("Baguette " + to_string(this->count), this->get_prix()));
+    }
+  }
+  virtual Article* prendre() {
+    Article* a = this->stock[0];
+    this->stock.erase(this->stock.begin());
+    if (this->stock.size() < 5) {
+      this->approvisionner();
+    }
+    return a;
+  }
+
 public:
+  Boulangerie() {
+    this->count = 0;
+    this->approvisionner();
+  }
   virtual string get_nom() {
     return "Boulangerie";
   }
@@ -53,7 +82,7 @@ public:
   }
   virtual Article* acheter(int argent) {
     if (argent >= this->get_prix()) {
-      return new Article("Baguette", this->get_prix());
+      return this->prendre();
     } else {
       return nullptr;
     }
@@ -65,7 +94,30 @@ public:
  * Spécialisation Presse implémentant toutes les méthodes abstraites
 */
 class Presse: public Magasin {
+protected:
+  int count;
+
+  virtual void approvisionner() {
+    cout << "Réappro Presse !" << endl;
+    for (int i = 0; i < 10; i++) {
+      this->count += 1;
+      this->stock.push_back(new Article("Journal " + to_string(this->count), this->get_prix()));
+    }
+  }
+  virtual Article* prendre() {
+    Article* a = this->stock[this->stock.size() - 1];
+    this->stock.pop_back();
+    if (this->stock.size() < 5) {
+      this->approvisionner();
+    }
+    return a;
+  }
+
 public:
+  Presse() {
+    this->count = 0;
+    this->approvisionner();
+  }
   virtual string get_nom() {
     return "Presse";
   }
@@ -74,10 +126,26 @@ public:
   }
   virtual Article* acheter(int argent) {
     if (argent >= this->get_prix()) {
-      return new Article("Journal", this->get_prix());
+      return this->prendre();
     } else {
       return nullptr;
     }
+  }
+};
+
+/**
+ * Ex-2.4
+ * La galerie
+*/
+class Galerie {
+private:
+  vector<Magasin*> magasins;
+
+public:
+  vector<Magasin*> get_magasins() { return this->magasins; }
+
+  void ajouter(Magasin* magasin) {
+    this->magasins.push_back(magasin);
   }
 };
 
@@ -97,6 +165,20 @@ int main(int argc, char **argv)
 
   a1->afficher();
   a2->afficher();
+
+  Galerie* galerie = new Galerie();
+  galerie->ajouter(m1);
+  galerie->ajouter(m2);
+
+  for (int i = 0; i < 10; i++) {
+    for (Magasin* magasin : galerie->get_magasins()) {
+      // cout << magasin->get_nom() << endl;
+      Article* a = magasin->acheter(magasin->get_prix());
+      cout << "Le client " << (i + 1) << " achète " << a->get_nom() << " pour " << magasin->get_prix() << "€ dans " << magasin->get_nom() << endl;
+      delete a;
+    }
+  }
+
 
   delete a1;
   delete a2;

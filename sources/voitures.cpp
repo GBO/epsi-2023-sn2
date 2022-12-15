@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <cmath>
 
@@ -85,12 +86,7 @@ public:
 */
 class LamborghiniGallardo : public Voiture {
 public:
-  LamborghiniGallardo(): Voiture("Lamborghini", "Gallardo") {
-    // Ex-1.3 : Initialisation des composants de notre Voiture
-    this->moteur = new Moteur(4961, 8000);
-    this->boite = new Boite(6);
-    this->roues = new Roues(4300);
-  }
+  LamborghiniGallardo(): Voiture("Lamborghini", "Gallardo") {}
 
   virtual void afficher() {
     cout << "La Lambo : " << this->marque << " " << this->modele << endl;
@@ -115,31 +111,34 @@ public:
   }
 };
 
-/*
+
+
 class VoitureFactory {
 private:
   static VoitureFactory* instance;
 
-  VoitureFactory() {
-    // Constructeur privé pour empêcher les instanciations sauvages
-  }
+  VoitureFactory() {}
 public:
-  static VoitureFactory* get_instance() {
-    if (VoitureFactory::instance == nullptr) {
-      VoitureFactory::instance = new VoitureFactory();
-    }
-    return VoitureFactory::instance;
-  }  
-};
-*/
+  static VoitureFactory* get_instance();
 
+  Voiture* creer(string modele);
+};
+
+VoitureFactory* VoitureFactory::instance = nullptr;
+
+VoitureFactory* VoitureFactory::get_instance() {
+  if (VoitureFactory::instance == nullptr) {
+    VoitureFactory::instance = new VoitureFactory();
+  }
+  return VoitureFactory::instance;
+}  
 
 
 /**
  * Ex-1.4
  * Première version de Factory sous forme de fonction simple
 */
-Voiture* creer(string modele) {
+Voiture* VoitureFactory::creer(string modele) {
   Voiture* voiture;
   // En fonction du paramètre fourni, on instancie des objets de la bonne classe
   if (modele == "Gallardo") {
@@ -159,9 +158,9 @@ int main(int argc, char **argv)
 {
   cout << "Exercice 1.1 - Voiture" << endl;
 
-  Voiture* v1 = creer("Gallardo");
-  Voiture* v2 = creer("FocusRS");
-  Voiture* v3 = creer("Mégane");
+  Voiture* v1 = VoitureFactory::get_instance()->creer("Gallardo");
+  Voiture* v2 = VoitureFactory::get_instance()->creer("FocusRS");
+  Voiture* v3 = VoitureFactory::get_instance()->creer("Mégane");
 
   v1->afficher();
   cout << "Vitesse max : " << v1->get_vitesse_max() << endl;
